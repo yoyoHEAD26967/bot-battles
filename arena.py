@@ -8,10 +8,12 @@ class Arena:
         self.roundRunning = False
 
     def round(self, round_number):
-            """ print()
+            print()
             print(f"===== ROUND {round_number} =====")
             print("====== FIGHT ! ========")
-            """
+            
+
+            self.roundRunning = True
 
             self.robot1.loop(self.robot2)
             self.robot2.report()

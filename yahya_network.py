@@ -6,15 +6,18 @@ from robot import Robot
 from arena import Arena
 from yahya_bot import YahyaBot
 from balanced_bot import BalancedBot
+from smart_hunter_bot import SmartHunterBot
 
 import numpy as np
+import random
 
 import os
 import json
 
 class ArenaEnvironment(Arena):
     def __init__(self):
-        super().__init__(BalancedBot(), YahyaBot())
+
+        self.bots = [SmartHunterBot(), BalancedBot()]
 
         self.episode = 0
         self.steps = 0
@@ -24,6 +27,10 @@ class ArenaEnvironment(Arena):
         if self.steps > 0:
             self.episode += 1
 
+        bot: Robot = random.choice(self.bots)
+        print(bot.name)
+
+        super().__init__(bot, YahyaBot())
         super().setup()
 
         self.steps = 0
@@ -84,7 +91,7 @@ class BotNetwork(nn.Module):
 class BotWorker():
     def __init__(self, data: list = []):
         self.model = BotNetwork()
-        self.discount_factor = 0.9995
+        self.discount_factor = 0.995
         self.learning_rate = 0.001
 
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
@@ -151,11 +158,12 @@ class BotWorker():
         self.states, self.actions, self.rewards = [], [], []
 
     def save_model(self, model_path, dimension_path):
+        """Still need to make save and load functions"""
         torch.save({})
 
 
 if __name__ == "__main__":
-    episodes = 2000
+    episodes = 200
 
     env = ArenaEnvironment()
     bot = BotWorker()
@@ -179,5 +187,11 @@ if __name__ == "__main__":
 
             if done:
                 bot.train_model()
-                print(f"episode: {e}  score: {round(score, 2)}  steps: {global_step}")
+                print(f"episode: {e}  score: {round(score, 2)}  steps: {global_step}\n")
+
+    print("\n\n STARTING THE BATTLE \n\n")
+
+    arena = Arena(BalancedBot(), YahyaBot(bot))
+
+    #arena.run()
         
