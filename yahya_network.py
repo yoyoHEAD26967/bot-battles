@@ -159,11 +159,25 @@ class BotWorker():
 
     def save_model(self, model_path, dimension_path):
         """Still need to make save and load functions"""
-        torch.save({})
+        torch.save({"model_state_dict": self.model.state_dict()}, model_path)
+
+        with open(dimension_path, "w") as f:
+            json.dump({ "input size": self.model.input_neurons, "output_size": self.model.output_neurons }, f)
+
+    def load_model(self, model_path, dimension_path):
+        checkpoint = torch.load(model_path, map_location="cpu", weights_only=True)
+
+        with open(dimension_path, "r") as f:
+            dimensions = json.load(f)
+
+        self.model = BotNetwork(dimensions["input_size"], dimensions["output_size"])
+
+        self.model.load_state_dict(checkpoint["model_state_dict"])
+        self.model.eval()
 
 
 if __name__ == "__main__":
-    episodes = 200
+    episodes = 2000
 
     env = ArenaEnvironment()
     bot = BotWorker()
